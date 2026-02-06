@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ conference_name }} {{ conference_year }} 论文分析报告</title>
+
+    <!-- MathJax 3 配置和加载 -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$']],
+                displayMath: [['$$', '$$']],
+                processEscapes: true,
+                processEnvironments: true
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+            }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', Arial, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        
+        h1 {
+            color: #667eea;
+            border-bottom: 4px solid #667eea;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-size: 32px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        
+        .stat-card h3 {
+            font-size: 14px;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+        
+        .stat-card p {
+            font-size: 28px;
+            font-weight: bold;
+        }
+        
+        .paper {
+            border: 2px solid #e0e0e0;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            background: #fafafa;
+            transition: all 0.3s ease;
+        }
+        
+        .paper:hover {
+            border-color: #667eea;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .paper-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+        
+        .paper-meta {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .rating {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .keywords {
+            color: #28a745;
+            font-style: italic;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .keywords::before {
+            content: "🏷️";
+            margin-right: 5px;
+        }
+        
+        .analysis {
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+            line-height: 1.8;
+        }
+        
+        .analysis h3 {
+            color: #667eea;
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .analysis ul {
+            margin-left: 20px;
+        }
+        
+        .links {
+            margin-top: 15px;
+            display: flex;
+            gap: 15px;
+        }
+        
+        .links a {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .links a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+            text-align: center;
+            color: #999;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 {{ conference_name }}{{ conference_year }} 论文分析报告</h1>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <h3>论文总数</h3>
+                <p>{{ stats.total_count }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>平均评分</h3>
+                <p>{{ "%.2f"|format(stats.avg_rating) }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>最高评分</h3>
+                <p>{{ "%.2f"|format(stats.max_rating) }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>最低评分</h3>
+                <p>{{ "%.2f"|format(stats.min_rating) }}</p>
+            </div>
+        </div>
+        
+        {% for paper in papers %}
+        <div class="paper">
+            <div class="paper-title">{{ loop.index }}. {{ paper.Title }}</div>
+            <div class="paper-meta">
+                <span class="rating">⭐ 评分: {{ paper.Rating }}</span>
+                {% if paper.Keywords %}
+                <span class="keywords">{{ paper.Keywords }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="analysis">
+                {{ paper.AI_Analysis_HTML | safe }}
+            </div>
+            
+            <div class="links">
+                <a href="{{ paper.Link }}" target="_blank">🔗 查看原文</a>
+                <a href="{{ paper.PDF }}" target="_blank">📄 下载PDF</a>
+            </div>
+        </div>
+        {% endfor %}
+        
+        <div class="footer">
+            <p>生成时间: {{ now() }}</p>
+            <p>Powered by OpenReview Crawler</p>
+        </div>
+    </div>
+</body>
+</html>
+

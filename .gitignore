@@ -1,0 +1,6 @@
+.venv
+augment_test
+augment_caption
+analyses/*
+logs
+.idea
