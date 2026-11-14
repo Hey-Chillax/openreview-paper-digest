@@ -1,6 +1,16 @@
-.venv
-augment_test
-augment_caption
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# 密钥
+.env
+
+# 运行输出
 analyses/*
-logs
-.idea
+logs/
+
+# 本地文件
+.idea/
+augment_test/
+augment_caption/

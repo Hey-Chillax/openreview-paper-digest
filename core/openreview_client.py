@@ -3,6 +3,7 @@ OpenReview API 客户端封装
 提供论文获取、评分查询等功能
 """
 
+import os
 import openreview
 from typing import List, Optional, Dict, Any
 from utils.rate_limiter import OpenReviewRateLimiter
@@ -26,9 +27,15 @@ class OpenReviewClient:
         self.logger = logging.getLogger('openreview_crawler')
         
         # 初始化 OpenReview 客户端
+        # 账号密码由 openreview-py 从环境变量 OPENREVIEW_USERNAME / OPENREVIEW_PASSWORD 读取并自动登录
+        # 登录有效期设为允许的最长值 1 周，避免长时间运行中途过期
         base_url = config.get('api', 'openreview_base_url', default='https://api2.openreview.net')
-        self.client = openreview.api.OpenReviewClient(baseurl=base_url)
-        
+        self.client = openreview.api.OpenReviewClient(
+            baseurl=base_url,
+            tokenExpiresIn=7 * 24 * 3600,
+            mfa_code_provider=self._totp_code_provider()
+        )
+
         # 初始化速率限制器
         rate_config = config.get('rate_limit', 'openreview', default={})
         self.rate_limiter = OpenReviewRateLimiter(
@@ -37,7 +44,26 @@ class OpenReviewClient:
         )
         
         self.logger.info("✅ OpenReview 客户端初始化成功")
-    
+
+    def _totp_code_provider(self):
+        """
+        两步验证（TOTP）验证码生成器
+
+        设置了环境变量 OPENREVIEW_TOTP_SECRET 时，按该密钥自动生成 6 位验证码，可在后台或定时任务中登录；
+        未设置时返回 None，由 openreview-py 在终端里提示手动输入。
+
+        Returns:
+            生成验证码的函数，或 None
+        """
+        secret = os.environ.get('OPENREVIEW_TOTP_SECRET')
+        if not secret:
+            return None
+
+        import pyotp
+        totp = pyotp.TOTP(secret.replace(' ', '').upper())
+        self.logger.info("🔐 已设置 OPENREVIEW_TOTP_SECRET，将自动完成两步验证")
+        return lambda method: totp.now()
+
     def get_all_submissions(self, invitation: str) -> List:
         """
         获取所有投稿论文

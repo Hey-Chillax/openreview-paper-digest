@@ -1,7 +1,7 @@
 [project]
 name = "openreview"
 version = "0.1.0"
-description = "Add your description here"
+description = "从 OpenReview 拉取顶会论文，按关键词和审稿评分筛选，再调用 Gemini 逐篇解读"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -10,9 +10,10 @@ dependencies = [
     "markdown>=3.10.1",
     "matplotlib>=3.10.8",
     "openpyxl>=3.1.5",
-    "openreview-py>=1.56.1",
+    "openreview-py>=2.9.3",
     "pandas>=3.0.0",
     "pandas-stubs~=3.0.0",
+    "pyotp>=2.9.0",
     "pypdf>=6.6.2",
     "python-dotenv>=1.2.1",
     "pyyaml>=6.0.3",
